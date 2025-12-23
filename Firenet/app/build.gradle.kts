@@ -21,12 +21,12 @@ android {
         keystoreProps.load(keystorePropsFile.inputStream())
     }
 
-    namespace = "com.ghognus"
+    namespace = "com.v2ray.ang"
     compileSdk = 35
 
     defaultConfig {
         applicationId = "com.ghognus"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 35
         versionCode = 1004
         versionName = "1.5.0"
