@@ -19,7 +19,6 @@ object DomainFallback {
     private val domains = CopyOnWriteArrayList<String>(
         listOf(
             "https://tofanpanel.top:2053",
-            "https://tofanpanel.top:2096",
         )
     )
 
