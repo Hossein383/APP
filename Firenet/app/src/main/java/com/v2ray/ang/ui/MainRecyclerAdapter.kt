@@ -35,6 +35,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder is MainViewHolder) {
+            // استفاده از getOrNull برای جلوگیری از کرش در صورت خالی بودن لیست
             val serverData = mActivity.mainViewModel.serversCache.getOrNull(position) ?: return
             val guid = serverData.guid
             val profile = serverData.profile
@@ -42,12 +43,12 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
             holder.itemMainBinding.tvName.text = profile.remarks
             val isSelected = (guid == MmkvManager.getSelectServer())
 
-            // اعمال وضعیت ظاهری، انیمیشن و ویبره
+            // اعمال تغییرات بصری
             updateUI(holder, isSelected)
 
             holder.itemView.setOnClickListener {
-                // اجرای ویبره ریز هنگام کلیک
-                it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                // ویبره لمسی
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 
                 setSelectServer(guid, position)
                 mActivity.scrollToPositionCentered(position)
@@ -57,27 +58,32 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 
     private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
         val binding = holder.itemMainBinding
-        val context = holder.itemView.context
-
+        
         if (isSelected) {
-            // حالت انتخاب شده: حاشیه گرادینت + انیمیشن بزرگ شدن
-            binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
+            // حالت انتخاب شده
+            try {
+                binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
+            } catch (e: Exception) {
+                // اگر فایل drawable هنوز ساخته نشده، کرش نکند
+                binding.layoutIndicator.setBackgroundColor(Color.BLUE)
+            }
+            
             binding.layoutIndicator.backgroundTintList = null 
             binding.ivStatusIcon.setImageResource(R.drawable.ic_server_active)
             binding.ivStatusIcon.setColorFilter(Color.WHITE)
             
-            binding.tvName.setTextColor(ContextCompat.getColor(context, R.color.colorAccent))
+            // رنگ متن را مستقیم ست میکنیم که اگر colorAccent نبود خطا ندهد
+            binding.tvName.setTextColor(Color.parseColor("#00E5FF")) 
             binding.tvName.maxLines = 2
 
-            // انیمیشن Scale Up
             binding.layoutIndicator.animate()
-                .scaleX(1.15f)
-                .scaleY(1.15f)
-                .setDuration(300)
+                .scaleX(1.1f)
+                .scaleY(1.1f)
+                .setDuration(250)
                 .setInterpolator(OvershootInterpolator())
                 .start()
         } else {
-            // حالت عادی: ظاهر شیشه‌ای ساده + بازگشت به سایز اصلی
+            // حالت عادی
             binding.layoutIndicator.setBackgroundResource(R.drawable.bg_glass_input)
             binding.layoutIndicator.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
             binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
@@ -86,11 +92,10 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
             binding.tvName.setTextColor(Color.WHITE)
             binding.tvName.maxLines = 1
 
-            // انیمیشن Scale Down
             binding.layoutIndicator.animate()
                 .scaleX(1.0f)
                 .scaleY(1.0f)
-                .setDuration(250)
+                .setDuration(200)
                 .start()
         }
     }
@@ -100,14 +105,12 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
         if (guid != lastSelected) {
             MmkvManager.setSelectServer(guid)
             
-            // آپدیت آیتم‌های قبلی و جدید
             if (!lastSelected.isNullOrEmpty()) {
                 val oldPos = mActivity.mainViewModel.getPosition(lastSelected)
                 if (oldPos != -1) notifyItemChanged(oldPos)
             }
             notifyItemChanged(position)
 
-            // مدیریت سوییچ ایمن سرویس
             if (isRunning) {
                 switchJob?.cancel()
                 switchJob = mActivity.lifecycleScope.launch(Dispatchers.Main) {
@@ -116,7 +119,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
                         delay(500)
                         V2RayServiceManager.startVService(mActivity)
                     } catch (e: Exception) {
-                        Log.e(AppConfig.TAG, "Service Restart Error", e)
+                        Log.e(AppConfig.TAG, "Restart Error", e)
                     }
                 }
             }
