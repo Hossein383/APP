@@ -35,7 +35,6 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         if (holder is MainViewHolder) {
-            // استفاده از getOrNull برای جلوگیری از کرش در صورت خالی بودن لیست
             val serverData = mActivity.mainViewModel.serversCache.getOrNull(position) ?: return
             val guid = serverData.guid
             val profile = serverData.profile
@@ -43,14 +42,11 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
             holder.itemMainBinding.tvName.text = profile.remarks
             val isSelected = (guid == MmkvManager.getSelectServer())
 
-            // اعمال تغییرات بصری
             updateUI(holder, isSelected)
 
             holder.itemView.setOnClickListener {
-                // ویبره لمسی
                 it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                
-                setSelectServer(guid, position)
+                setSelectServer(guid, position) // اینجا پوزیشن را پاس می‌دهیم
                 mActivity.scrollToPositionCentered(position)
             }
         }
@@ -58,58 +54,47 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 
     private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
         val binding = holder.itemMainBinding
-        
         if (isSelected) {
-            // حالت انتخاب شده
             try {
                 binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
             } catch (e: Exception) {
-                // اگر فایل drawable هنوز ساخته نشده، کرش نکند
-                binding.layoutIndicator.setBackgroundColor(Color.BLUE)
+                binding.layoutIndicator.setBackgroundColor(Color.parseColor("#7C4DFF"))
             }
-            
             binding.layoutIndicator.backgroundTintList = null 
             binding.ivStatusIcon.setImageResource(R.drawable.ic_server_active)
             binding.ivStatusIcon.setColorFilter(Color.WHITE)
-            
-            // رنگ متن را مستقیم ست میکنیم که اگر colorAccent نبود خطا ندهد
             binding.tvName.setTextColor(Color.parseColor("#00E5FF")) 
             binding.tvName.maxLines = 2
-
-            binding.layoutIndicator.animate()
-                .scaleX(1.1f)
-                .scaleY(1.1f)
-                .setDuration(250)
-                .setInterpolator(OvershootInterpolator())
-                .start()
+            binding.layoutIndicator.animate().scaleX(1.1f).scaleY(1.1f).setDuration(250).setInterpolator(OvershootInterpolator()).start()
         } else {
-            // حالت عادی
             binding.layoutIndicator.setBackgroundResource(R.drawable.bg_glass_input)
             binding.layoutIndicator.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
             binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
             binding.ivStatusIcon.setColorFilter(Color.LTGRAY)
-            
             binding.tvName.setTextColor(Color.WHITE)
             binding.tvName.maxLines = 1
-
-            binding.layoutIndicator.animate()
-                .scaleX(1.0f)
-                .scaleY(1.0f)
-                .setDuration(200)
-                .start()
+            binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
         }
     }
 
-    fun setSelectServer(guid: String, position: Int) {
+    /**
+     * تغییر این تابع: اضافه کردن مقدار پیش‌فرض -1 برای position 
+     * تا در MainActivity که بدون پوزیشن صدا زده شده، خطا ندهد.
+     */
+    fun setSelectServer(guid: String, position: Int = -1) {
         val lastSelected = MmkvManager.getSelectServer()
         if (guid != lastSelected) {
             MmkvManager.setSelectServer(guid)
             
+            // آپدیت گرافیکی آیتم قبلی
             if (!lastSelected.isNullOrEmpty()) {
                 val oldPos = mActivity.mainViewModel.getPosition(lastSelected)
                 if (oldPos != -1) notifyItemChanged(oldPos)
             }
-            notifyItemChanged(position)
+
+            // آپدیت گرافیکی آیتم جدید
+            val newPos = if (position != -1) position else mActivity.mainViewModel.getPosition(guid)
+            if (newPos != -1) notifyItemChanged(newPos)
 
             if (isRunning) {
                 switchJob?.cancel()
@@ -131,7 +116,6 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
     }
 
     override fun getItemViewType(position: Int): Int = VIEW_TYPE_ITEM
-
     open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     class MainViewHolder(val itemMainBinding: ItemRecyclerMainBinding) : BaseViewHolder(itemMainBinding.root)
 }
