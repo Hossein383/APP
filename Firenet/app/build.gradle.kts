@@ -221,6 +221,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.github.blongho:worldCountryData:1.5.4")
     implementation("com.google.android.material:material:1.12.0")
 }
