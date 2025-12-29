@@ -23,31 +23,38 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        val guid = mActivity.mainViewModel.serversCache[position].guid
-        val isSelected = guid == MmkvManager.getSelectServer()
+        val guid = mActivity.mainViewModel.serversCache[position].guid ?: ""
+        val isSelected = guid == (MmkvManager.getSelectServer() ?: "")
         updateUI(holder, isSelected)
 
         holder.itemView.setOnClickListener {
-            setSelectServer(guid)
+            if (guid.isNotEmpty()) {
+                setSelectServer(guid)
+            }
         }
     }
 
     fun setSelectServer(guid: String) {
-        val oldPos = mActivity.mainViewModel.getPosition(MmkvManager.getSelectServer())
+        val currentSelect = MmkvManager.getSelectServer() ?: ""
+        val oldPos = mActivity.mainViewModel.getPosition(currentSelect)
         val newPos = mActivity.mainViewModel.getPosition(guid)
+        
         MmkvManager.setSelectServer(guid)
+        
         if (oldPos >= 0) notifyItemChanged(oldPos)
         if (newPos >= 0) notifyItemChanged(newPos)
-        mActivity.scrollToPositionCentered(newPos)
+        
+        if (newPos >= 0) {
+            mActivity.scrollToPositionCentered(newPos)
+        }
     }
 
     private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
         val binding = holder.itemMainBinding
-        val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition) ?: return
-
+        // حذف وابستگی به داده‌های سرور برای جلوگیری از خطای Null
         binding.layoutIndicator.clearAnimation()
 
-        // استفاده از آیکون پیش‌فرض و ساده بدون پرچم
+        // نمایش آیکون ساده
         binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
         binding.ivStatusIcon.setColorFilter(if (isSelected) Color.WHITE else Color.LTGRAY)
 
@@ -73,6 +80,10 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
             binding.tvName.maxLines = 1
             binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
         }
+        
+        // نمایش نام سرور (اگر موجود بود)
+        val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition)
+        binding.tvName.text = serverData?.profile?.remarks ?: "Server"
     }
 
     class MainViewHolder(val itemMainBinding: ItemRecyclerMainBinding) : RecyclerView.ViewHolder(itemMainBinding.root)
