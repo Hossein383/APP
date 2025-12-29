@@ -58,29 +58,37 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
     val binding = holder.itemMainBinding
     val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition) ?: return
-    val remarks = serverData.profile.remarks // نام سرور
+    val remarks = serverData.profile.remarks
 
     binding.layoutIndicator.clearAnimation()
 
-    // --- منطق تشخیص پرچم ---
+    // --- منطق جدید تشخیص پرچم از Drawable ---
     val countryCode = getCountryCode(remarks)
+    
     if (countryCode.isNotEmpty()) {
-        val flagResId = com.blongho.country_data.World.getFlagOf(countryCode)
-        binding.ivStatusIcon.setImageResource(flagResId)
-        binding.ivStatusIcon.colorFilter = null // حذف فیلتر رنگ برای نمایش رنگ واقعی پرچم
+        // پیدا کردن ID تصویر بر اساس کد کشور (نام فایل باید با کد کشور یکی باشد)
+        // مثلاً برای "de" دنبال فایل flag_de می‌گردد
+        val resName = "flag_$countryCode"
+        val resId = mActivity.resources.getIdentifier(resName, "drawable", mActivity.packageName)
+        
+        if (resId != 0) {
+            binding.ivStatusIcon.setImageResource(resId)
+        } else {
+            binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
+        }
+        binding.ivStatusIcon.colorFilter = null 
     } else {
         binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
         binding.ivStatusIcon.setColorFilter(if (isSelected) Color.WHITE else Color.LTGRAY)
     }
 
+    // --- بخش استایل و انیمیشن (بدون تغییر) ---
     if (isSelected) {
-        // حالت انتخاب شده
         binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
         binding.layoutIndicator.backgroundTintList = null 
         binding.tvName.setTextColor(Color.parseColor("#00E5FF")) 
         binding.tvName.maxLines = 2
 
-        // انیمیشن پاپ و نبض
         binding.layoutIndicator.animate().scaleX(1.15f).scaleY(1.15f).setDuration(300)
             .setInterpolator(OvershootInterpolator()).start()
 
@@ -90,35 +98,14 @@ private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
             repeatCount = Animation.INFINITE
         }
         binding.layoutIndicator.startAnimation(pulseAnim)
-
-        // نمایش هاله نوری (اگر در XML اضافه کردیم)
         binding.layoutIndicator.alpha = 1.0f
 
     } else {
-        // حالت عادی (شیشه‌ای)
         binding.layoutIndicator.setBackgroundResource(R.drawable.bg_glass_input)
         binding.layoutIndicator.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
         binding.tvName.setTextColor(Color.WHITE)
         binding.tvName.maxLines = 1
-
         binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
-    }
-}
-
-// تابع کمکی برای تشخیص کد کشور از روی نام سرور
-private fun getCountryCode(remarks: String): String {
-    val r = remarks.lowercase()
-    return when {
-        r.contains("germany") || r.contains("آلمان") || r.contains(" de ") || r.startsWith("de-") -> "de"
-        r.contains("usa") || r.contains("united states") || r.contains("آمریکا") || r.contains(" us ") -> "us"
-        r.contains("turkey") || r.contains("ترکیه") || r.contains(" tr ") -> "tr"
-        r.contains("united kingdom") || r.contains("انگلیس") || r.contains(" uk ") || r.contains(" gb ") -> "gb"
-        r.contains("france") || r.contains("فرانسه") || r.contains(" fr ") -> "fr"
-        r.contains("netherlands") || r.contains("هلند") || r.contains(" nl ") -> "nl"
-        r.contains("canada") || r.contains("کانادا") || r.contains(" ca ") -> "ca"
-        r.contains("finland") || r.contains("فنلاند") || r.contains(" fi ") -> "fi"
-        r.contains("singapore") || r.contains("سنگاپور") || r.contains(" sg ") -> "sg"
-        else -> ""
     }
 }
 
