@@ -44,25 +44,12 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
     private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
         val binding = holder.itemMainBinding
         val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition) ?: return
-        val remarks = serverData.profile.remarks
 
         binding.layoutIndicator.clearAnimation()
 
-        // منطق تشخیص و نمایش پرچم دستی
-        val countryCode = getCountryCode(remarks)
-        if (countryCode.isNotEmpty()) {
-            val resName = "flag_$countryCode"
-            val resId = mActivity.resources.getIdentifier(resName, "drawable", mActivity.packageName)
-            if (resId != 0) {
-                binding.ivStatusIcon.setImageResource(resId)
-                binding.ivStatusIcon.colorFilter = null
-            } else {
-                binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
-            }
-        } else {
-            binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
-            binding.ivStatusIcon.setColorFilter(if (isSelected) Color.WHITE else Color.LTGRAY)
-        }
+        // استفاده از آیکون پیش‌فرض و ساده بدون پرچم
+        binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
+        binding.ivStatusIcon.setColorFilter(if (isSelected) Color.WHITE else Color.LTGRAY)
 
         if (isSelected) {
             binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
@@ -85,19 +72,6 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
             binding.tvName.setTextColor(Color.WHITE)
             binding.tvName.maxLines = 1
             binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
-        }
-    }
-
-    private fun getCountryCode(remarks: String): String {
-        val r = remarks.lowercase()
-        return when {
-            r.contains("germany") || r.contains("آلمان") || r.contains(" de ") || r.startsWith("de-") -> "de"
-            r.contains("usa") || r.contains("united states") || r.contains("آمریکا") || r.contains(" us ") -> "us"
-            r.contains("turkey") || r.contains("ترکیه") || r.contains(" tr ") -> "tr"
-            r.contains("united kingdom") || r.contains("انگلیس") || r.contains(" uk ") || r.contains(" gb ") -> "gb"
-            r.contains("france") || r.contains("فرانسه") || r.contains(" fr ") -> "fr"
-            r.contains("netherlands") || r.contains("هلند") || r.contains(" nl ") -> "nl"
-            else -> ""
         }
     }
 
