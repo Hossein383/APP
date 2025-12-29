@@ -8,6 +8,8 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.animation.OvershootInterpolator
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -46,7 +48,7 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 
             holder.itemView.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                setSelectServer(guid, position) // اینجا پوزیشن را پاس می‌دهیم
+                setSelectServer(guid, position)
                 mActivity.scrollToPositionCentered(position)
             }
         }
@@ -54,45 +56,68 @@ class MainRecyclerAdapter(val activity: MainActivity) : RecyclerView.Adapter<Mai
 
     private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
         val binding = holder.itemMainBinding
+        
+        // پاک کردن انیمیشن‌های قبلی برای جلوگیری از تداخل
+        binding.layoutIndicator.clearAnimation()
+
         if (isSelected) {
+            // ۱. اعمال پس‌زمینه درخشان
             try {
                 binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
             } catch (e: Exception) {
                 binding.layoutIndicator.setBackgroundColor(Color.parseColor("#7C4DFF"))
             }
+            
             binding.layoutIndicator.backgroundTintList = null 
             binding.ivStatusIcon.setImageResource(R.drawable.ic_server_active)
             binding.ivStatusIcon.setColorFilter(Color.WHITE)
             binding.tvName.setTextColor(Color.parseColor("#00E5FF")) 
             binding.tvName.maxLines = 2
-            binding.layoutIndicator.animate().scaleX(1.1f).scaleY(1.1f).setDuration(250).setInterpolator(OvershootInterpolator()).start()
+
+            // ۲. انیمیشن بزرگ شدن (Pop)
+            binding.layoutIndicator.animate()
+                .scaleX(1.15f)
+                .scaleY(1.15f)
+                .setDuration(300)
+                .setInterpolator(OvershootInterpolator())
+                .start()
+
+            // ۳. انیمیشن نبض زدن (Shimmer/Pulse Effect)
+            val pulseAnim = AlphaAnimation(0.7f, 1.0f).apply {
+                duration = 800
+                repeatMode = Animation.REVERSE
+                repeatCount = Animation.INFINITE
+            }
+            binding.layoutIndicator.startAnimation(pulseAnim)
+
         } else {
+            // حالت غیرفعال (Glassmorphism)
             binding.layoutIndicator.setBackgroundResource(R.drawable.bg_glass_input)
             binding.layoutIndicator.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
             binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
             binding.ivStatusIcon.setColorFilter(Color.LTGRAY)
             binding.tvName.setTextColor(Color.WHITE)
             binding.tvName.maxLines = 1
-            binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
+
+            // بازگشت به اندازه اصلی
+            binding.layoutIndicator.animate()
+                .scaleX(1.0f)
+                .scaleY(1.0f)
+                .setDuration(200)
+                .start()
         }
     }
 
-    /**
-     * تغییر این تابع: اضافه کردن مقدار پیش‌فرض -1 برای position 
-     * تا در MainActivity که بدون پوزیشن صدا زده شده، خطا ندهد.
-     */
     fun setSelectServer(guid: String, position: Int = -1) {
         val lastSelected = MmkvManager.getSelectServer()
         if (guid != lastSelected) {
             MmkvManager.setSelectServer(guid)
             
-            // آپدیت گرافیکی آیتم قبلی
             if (!lastSelected.isNullOrEmpty()) {
                 val oldPos = mActivity.mainViewModel.getPosition(lastSelected)
                 if (oldPos != -1) notifyItemChanged(oldPos)
             }
 
-            // آپدیت گرافیکی آیتم جدید
             val newPos = if (position != -1) position else mActivity.mainViewModel.getPosition(guid)
             if (newPos != -1) notifyItemChanged(newPos)
 
