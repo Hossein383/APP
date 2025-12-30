@@ -28,7 +28,7 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
         updateUI(holder, isSelected)
 
         holder.itemView.setOnClickListener {
-            if (guid.isNotEmpty()) {
+            if (guid.isNotEmpty() && guid != MmkvManager.getSelectServer()) {
                 setSelectServer(guid)
             }
         }
@@ -39,24 +39,32 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
         val oldPos = mActivity.mainViewModel.getPosition(currentSelect)
         val newPos = mActivity.mainViewModel.getPosition(guid)
         
+        // ذخیره سرور جدید
         MmkvManager.setSelectServer(guid)
         
+        // بروزرسانی گرافیکی لیست
         if (oldPos >= 0) notifyItemChanged(oldPos)
         if (newPos >= 0) notifyItemChanged(newPos)
         
         if (newPos >= 0) {
             mActivity.scrollToPositionCentered(newPos)
         }
+
+        // حل مشکل سوییچ: اگر متصل هستیم، ری‌استارت کن تا سرور جدید اعمال شود
+        if (mActivity.mainViewModel.isRunning.value == true) {
+            mActivity.restartV2Ray()
+        }
     }
 
     private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
         val binding = holder.itemMainBinding
-        // حذف وابستگی به داده‌های سرور برای جلوگیری از خطای Null
         binding.layoutIndicator.clearAnimation()
 
-        // نمایش آیکون ساده
         binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
         binding.ivStatusIcon.setColorFilter(if (isSelected) Color.WHITE else Color.LTGRAY)
+
+        val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition)
+        binding.tvName.text = serverData?.profile?.remarks ?: "Server"
 
         if (isSelected) {
             binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
@@ -64,7 +72,7 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
             binding.tvName.setTextColor(Color.parseColor("#00E5FF"))
             binding.tvName.maxLines = 2
 
-            binding.layoutIndicator.animate().scaleX(1.15f).scaleY(1.15f).setDuration(300)
+            binding.layoutIndicator.animate().scaleX(1.1f).scaleY(1.1f).setDuration(300)
                 .setInterpolator(OvershootInterpolator()).start()
 
             val pulseAnim = AlphaAnimation(0.7f, 1.0f).apply {
@@ -80,10 +88,6 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
             binding.tvName.maxLines = 1
             binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
         }
-        
-        // نمایش نام سرور (اگر موجود بود)
-        val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition)
-        binding.tvName.text = serverData?.profile?.remarks ?: "Server"
     }
 
     class MainViewHolder(val itemMainBinding: ItemRecyclerMainBinding) : RecyclerView.ViewHolder(itemMainBinding.root)
