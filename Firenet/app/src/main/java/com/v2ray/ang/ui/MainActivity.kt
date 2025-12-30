@@ -489,9 +489,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun restartV2Ray() {
-        if (mainViewModel.isRunning.value == true) {
-            V2RayServiceManager.stopVService(this)
-        }
+        // ۱. توقف سرویس فعلی
+        V2RayServiceManager.stopVService(this)
+        
+        // ۲. صبر کوچک برای اتمام پروسه قبلی و سپس شروع با کانفیگ جدید
         lifecycleScope.launch {
             delay(500)
             startV2Ray()
