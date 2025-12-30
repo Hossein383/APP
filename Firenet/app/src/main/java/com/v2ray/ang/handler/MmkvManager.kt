@@ -612,4 +612,7 @@ object MmkvManager {
     fun removeLastStatus() {
         MMKV.defaultMMKV().remove(KEY_LAST_STATUS)
     }
+    fun getSelectLanguage(): String {
+        return settingsStorage.decodeString("pref_language", "fa") ?: "fa"
+    }
 }
