@@ -305,7 +305,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     val pos = centerView?.let { layoutManager.getPosition(it) }
                     if (pos != null && pos != -1) {
                         // منطق انتخاب سرور بر اساس موقعیت اسکرول
-                        val guid = mainViewModel.servers[pos].guid
+                        val guid = mActivity.mainViewModel.serversCache[pos].guid
                         adapter.setSelectServer(guid)
                     }
                 }
