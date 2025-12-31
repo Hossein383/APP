@@ -14,18 +14,29 @@ import com.v2ray.ang.handler.MmkvManager
 
 class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<MainRecyclerAdapter.MainViewHolder>() {
 
-    var isRunning = false
+    // تابعی برای لود مجدد و مطمئن لیست از ViewModel
+    fun refreshData() {
+        notifyDataSetChanged()
+    }
 
     override fun getItemCount() = mActivity.mainViewModel.serversCache.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
-        return MainViewHolder(ItemRecyclerMainBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return MainViewHolder(
+            ItemRecyclerMainBinding.inflate(
+                LayoutInflater.from(parent.context), 
+                parent, 
+                false
+            )
+        )
     }
 
     override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-        val guid = mActivity.mainViewModel.serversCache[position].guid ?: ""
+        val serverData = mActivity.mainViewModel.serversCache.getOrNull(position)
+        val guid = serverData?.guid ?: ""
         val isSelected = guid == (MmkvManager.getSelectServer() ?: "")
-        updateUI(holder, isSelected)
+        
+        updateUI(holder, isSelected, serverData?.profile?.remarks ?: "Unknown Server")
 
         holder.itemView.setOnClickListener {
             if (guid.isNotEmpty() && guid != MmkvManager.getSelectServer()) {
@@ -39,10 +50,9 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
         val oldPos = mActivity.mainViewModel.getPosition(currentSelect)
         val newPos = mActivity.mainViewModel.getPosition(guid)
         
-        // ذخیره سرور جدید
         MmkvManager.setSelectServer(guid)
         
-        // بروزرسانی گرافیکی لیست
+        // بروزرسانی فقط آیتم‌های تغییر یافته برای جلوگیری از لگ
         if (oldPos >= 0) notifyItemChanged(oldPos)
         if (newPos >= 0) notifyItemChanged(newPos)
         
@@ -50,43 +60,57 @@ class MainRecyclerAdapter(val mActivity: MainActivity) : RecyclerView.Adapter<Ma
             mActivity.scrollToPositionCentered(newPos)
         }
 
-        // حل مشکل سوییچ: اگر متصل هستیم، ری‌استارت کن تا سرور جدید اعمال شود
+        // سوئیچ آنی در صورت روشن بودن VPN
         if (mActivity.mainViewModel.isRunning.value == true) {
             mActivity.restartV2Ray()
         }
     }
 
-    private fun updateUI(holder: MainViewHolder, isSelected: Boolean) {
+    private fun updateUI(holder: MainViewHolder, isSelected: Boolean, serverName: String) {
         val binding = holder.itemMainBinding
-        binding.layoutIndicator.clearAnimation()
+        
+        // ریست کردن انیمیشن‌ها برای جلوگیری از تداخل در اسکرول
+        binding.root.clearAnimation()
+        binding.root.animate().cancel()
 
-        binding.ivStatusIcon.setImageResource(R.drawable.ic_server_idle)
-        binding.ivStatusIcon.setColorFilter(if (isSelected) Color.WHITE else Color.LTGRAY)
-
-        val serverData = mActivity.mainViewModel.serversCache.getOrNull(holder.layoutPosition)
-        binding.tvName.text = serverData?.profile?.remarks ?: "Server"
+        binding.tvName.text = serverName
 
         if (isSelected) {
-            binding.layoutIndicator.setBackgroundResource(R.drawable.bg_server_active)
-            binding.layoutIndicator.backgroundTintList = null
-            binding.tvName.setTextColor(Color.parseColor("#00E5FF"))
+            // استایل سرور انتخاب شده (نئون آبی)
+            binding.root.setCardBackgroundColor(Color.parseColor("#3300D2FF")) // آبی نیمه شفاف
+            binding.root.strokeColor = Color.parseColor("#00D2FF")
+            binding.root.strokeWidth = 4 
+            
+            binding.tvName.setTextColor(Color.parseColor("#00D2FF"))
             binding.tvName.maxLines = 2
 
-            binding.layoutIndicator.animate().scaleX(1.1f).scaleY(1.1f).setDuration(300)
-                .setInterpolator(OvershootInterpolator()).start()
+            // انیمیشن بزرگنمایی نرم
+            binding.root.animate()
+                .scaleX(1.05f)
+                .scaleY(1.05f)
+                .setDuration(300)
+                .setInterpolator(OvershootInterpolator())
+                .start()
 
-            val pulseAnim = AlphaAnimation(0.7f, 1.0f).apply {
-                duration = 800
+            // انیمیشن ضربان (Pulse) برای حس زنده بودن
+            val pulseAnim = AlphaAnimation(0.6f, 1.0f).apply {
+                duration = 1000
                 repeatMode = Animation.REVERSE
                 repeatCount = Animation.INFINITE
             }
-            binding.layoutIndicator.startAnimation(pulseAnim)
+            binding.root.startAnimation(pulseAnim)
+            
         } else {
-            binding.layoutIndicator.setBackgroundResource(R.drawable.bg_glass_input)
-            binding.layoutIndicator.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
+            // استایل سرورهای معمولی (شیشه‌ای محو)
+            binding.root.setCardBackgroundColor(Color.parseColor("#1AFFFFFF"))
+            binding.root.strokeColor = Color.parseColor("#1AFFFFFF")
+            binding.root.strokeWidth = 2
+            
             binding.tvName.setTextColor(Color.WHITE)
             binding.tvName.maxLines = 1
-            binding.layoutIndicator.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
+            
+            // بازگشت به اندازه اصلی
+            binding.root.animate().scaleX(1.0f).scaleY(1.0f).setDuration(200).start()
         }
     }
 
