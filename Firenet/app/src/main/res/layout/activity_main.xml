@@ -6,7 +6,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0E17"
+    android:background="@drawable/bg_login_main"
     android:layoutDirection="rtl"
     tools:context=".ui.MainActivity">
 
@@ -18,127 +18,114 @@
             android:id="@+id/bg_active"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#1A00D2FF"
+            android:background="@drawable/bg_glass_gradient_active"
             android:visibility="invisible" />
 
-        <androidx.appcompat.widget.Toolbar
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/headerActions"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="20dp"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_menu"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#FFFFFF" />
 
-                <ImageButton
-                    android:id="@+id/btnMenu"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_menu"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#FFFFFF" />
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/btnMenu"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/btnMenu" />
 
-                <TextView
-                    android:id="@+id/tvTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <ImageButton
+                android:id="@+id/btnLogout"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_logout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#FFFFFF" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ImageButton
-                    android:id="@+id/btnLogout"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_logout"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#FF4B4B" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.appcompat.widget.Toolbar>
-
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:id="@+id/box_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="#151C2C"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#1AFFFFFF"
-            app:strokeWidth="1dp"
-            app:layout_constraintTop_toBottomOf="@id/headerActions">
+            android:orientation="horizontal"
+            android:weightSum="2"
+            app:layout_constraintTop_toBottomOf="@id/headerActions"
+            android:layout_marginTop="10dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:weightSum="2">
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_glass_card"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+                <TextView
+                    android:id="@+id/tvUserStatus"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/tvUserStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="حجم مصرفی"
-                        android:textColor="#80FFFFFF"
-                        android:textSize="11sp" />
-                    <TextView
-                        android:id="@+id/tvTrafficSummary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="-- / --"
-                        android:textColor="#00D2FF"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:background="#1AFFFFFF" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                    android:text="حجم مصرفی"
+                    android:textColor="#99FFFFFF"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvTrafficSummary"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="اعتبار باقی‌مانده"
-                        android:textColor="#80FFFFFF"
-                        android:textSize="11sp" />
-                    <TextView
-                        android:id="@+id/tvDaysSummary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="-- روز"
-                        android:textColor="#FFFFFF"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:text="-- / --"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_glass_card"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="اعتبار باقی‌مانده"
+                    android:textColor="#99FFFFFF"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvDaysSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-- روز"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabGroup"
@@ -147,35 +134,38 @@
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/box_status" />
 
-        <LinearLayout
-            android:id="@+id/layout_test"
-            android:layout_width="wrap_content"
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/pbWaiting"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-            <TextView android:id="@+id/tv_test_state" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-        </LinearLayout>
+            android:indeterminate="true"
+            android:visibility="invisible"
+            app:indicatorColor="#FFFFFF"
+            app:trackColor="#33FFFFFF"
+            app:layout_constraintTop_toBottomOf="@id/tabGroup" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toTopOf="@+id/box_recycler"
-            app:layout_constraintTop_toBottomOf="@id/tabGroup">
+            app:layout_constraintTop_toBottomOf="@id/pbWaiting">
 
-            <ImageView android:id="@+id/ring1" android:layout_width="260dp" android:layout_height="260dp" android:src="@drawable/ic_arc_ring" android:alpha="0.1" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
-            <ImageView android:id="@+id/ring2" android:layout_width="230dp" android:layout_height="230dp" android:src="@drawable/ic_arc_ring" android:alpha="0.05" android:rotation="45" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
-            <ImageView android:id="@+id/ring3" android:layout_width="200dp" android:layout_height="200dp" android:src="@drawable/ic_arc_ring" android:alpha="0.02" android:rotation="90" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+            <ImageView android:id="@+id/ring1" android:layout_width="210dp" android:layout_height="210dp" android:src="@drawable/ic_arc_ring" android:alpha="0.3" android:visibility="invisible" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+            <ImageView android:id="@+id/ring2" android:layout_width="250dp" android:layout_height="250dp" android:src="@drawable/ic_arc_ring" android:alpha="0.2" android:rotation="45" android:visibility="invisible" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+            <ImageView android:id="@+id/ring3" android:layout_width="290dp" android:layout_height="290dp" android:src="@drawable/ic_arc_ring" android:alpha="0.1" android:rotation="90" android:visibility="invisible" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:fabCustomSize="170dp"
-                app:maxImageSize="170dp"
-                android:backgroundTint="@android:color/transparent"
-                app:elevation="0dp"
+                app:fabCustomSize="160dp"
+                app:maxImageSize="160dp"
+                app:borderWidth="0dp"
+                app:elevation="12dp"
+                app:rippleColor="@android:color/transparent"
                 app:srcCompat="@drawable/connect_button"
+                app:tint="@null"
+                android:backgroundTint="@android:color/transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -185,7 +175,7 @@
                 android:id="@+id/tvConnectionStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/not_connected"
                 android:textColor="#FFFFFF"
                 android:textSize="18sp"
@@ -194,54 +184,59 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fab" />
 
+            <LinearLayout
+                android:id="@+id/layout_test"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_glass_input"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvConnectionStatus">
+                <TextView
+                    android:id="@+id/tv_test_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connection_test_pending"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.card.MaterialCardView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/box_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card"
             android:layout_margin="16dp"
-            app:cardBackgroundColor="#151C2C"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="8dp"
-            app:strokeColor="#1AFFFFFF"
-            app:strokeWidth="1dp"
+            android:paddingVertical="12dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvServerLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="سرورهای پرسرعت"
+                android:textColor="#80FFFFFF"
+                android:textSize="12sp"
+                android:layout_marginStart="20dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingVertical="16dp">
-
-                <TextView
-                    android:id="@+id/tvServerLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:text="انتخاب موقعیت سرور"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:layout_marginTop="8dp"
-                    android:clipToPadding="false"
-                    android:paddingHorizontal="12dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/pbWaiting"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:visibility="invisible"
-            app:indicatorColor="#00D2FF"
-            app:layout_constraintBottom_toTopOf="@id/box_recycler" />
+                android:layout_marginTop="8dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:layoutAnimation="@anim/layout_animation_fall_down"
+                app:layout_constraintTop_toBottomOf="@id/tvServerLabel"
+                tools:listitem="@layout/item_recycler_main" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -250,9 +245,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#0A0E17"
+        android:background="#E60F172A"
         app:headerLayout="@layout/nav_header"
-        app:itemIconTint="#00D2FF"
+        app:itemIconTint="#FFFFFF"
         app:itemTextColor="#FFFFFF"
         app:menu="@menu/menu_drawer" />
 
